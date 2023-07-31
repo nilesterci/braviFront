@@ -1,0 +1,20 @@
+<po-page-default p-title="Contato" [p-actions]="actions">
+  <po-table
+  [p-auto-collapse]="true"
+  [p-columns]="columns"
+  [p-hide-columns-manager]="true"
+  [p-items]="items"
+  [p-sort]="true"
+  [p-striped]="true"
+  [p-actions]="actionsTable"
+>
+</po-table>
+</po-page-default>
+
+
+<po-modal p-title="Cadastrar Nova Pessoa" [p-primary-action]="shareAction" [p-secondary-action]="cancelAction">
+  <form #formShare="ngForm">
+    <po-input name="name" p-label="Nome" [(ngModel)]="name"> </po-input>
+    <po-datepicker name="datepicker" p-label="Data de Nascimento"  [(ngModel)]="datepicker"> </po-datepicker>
+  </form>
+</po-modal>
