@@ -1,9 +1,9 @@
-<po-page-default p-title="Contato" [p-actions]="actions">
+<po-page-default p-title="Contatos" [p-actions]="actions">
   <po-table
   [p-auto-collapse]="true"
   [p-columns]="columns"
   [p-hide-columns-manager]="true"
-  [p-items]="items"
+  [p-items]="itemsContatos"
   [p-sort]="true"
   [p-striped]="true"
   [p-actions]="actionsTable"
@@ -12,9 +12,9 @@
 </po-page-default>
 
 
-<po-modal p-title="Cadastrar Nova Pessoa" [p-primary-action]="shareAction" [p-secondary-action]="cancelAction">
+<po-modal p-title="Cadastrar Novo Contato" [p-primary-action]="shareAction" [p-secondary-action]="cancelAction">
   <form #formShare="ngForm">
-    <po-input name="name" p-label="Nome" [(ngModel)]="name"> </po-input>
-    <po-datepicker name="datepicker" p-label="Data de Nascimento"  [(ngModel)]="datepicker"> </po-datepicker>
+    <po-input name="name" p-label="Valor" [(ngModel)]="name"> </po-input>
+    <po-combo name="combo" p-label="Tipo" (ngModelChange)="comboModel = $event" [p-options]="[{ value: '0', label: 'WhatsApp' }, { value: '1', label: 'Telephone' }, { value: '2', label: 'CellPhone' }, { value: '3', label: 'Email' }]"> </po-combo>
   </form>
 </po-modal>

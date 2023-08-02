@@ -10,6 +10,8 @@ import {
   PoTableColumn,
 } from '@po-ui/ng-components';
 import { PessoaService } from '../pessoa/pessoa.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-contato',
@@ -17,20 +19,36 @@ import { PessoaService } from '../pessoa/pessoa.service';
   styleUrls: ['./contato.component.css'],
 })
 export class ContatoComponent implements OnInit {
+  constructor(
+    private personService: PessoaService,
+    private poNotification: PoNotificationService,
+    private activatedRoute: ActivatedRoute
+  ) {}
   @ViewChild(PoModalComponent, { static: true }) poModal: PoModalComponent;
-  columns: Array<PoTableColumn>;
-  items: Array<any>;
-  @ViewChild('formShare', { static: true }) formShare: NgForm;
 
-  readonly statusOptions: Array<PoSelectOption> = [
-    { label: 'Delivered', value: 'delivered' },
-    { label: 'Transport', value: 'transport' },
-    { label: 'Production', value: 'production' },
+  id$: Observable<string>;
+  items: Array<any>;
+  itemsContatos: Array<any>;
+  columns: Array<PoTableColumn>;
+  name: string;
+  comboModel: string;
+
+  actionsTable: Array<PoTableAction> = [
+    {
+      action: this.edit.bind(this),
+      icon: 'po-icon-user',
+      label: 'Editar contato',
+    },
+    {
+      action: this.delete.bind(this),
+      icon: 'po-icon-delete',
+      label: 'Excluir contato',
+    },
   ];
 
   public readonly actions: Array<PoPageAction> = [
     {
-      label: 'Cadastrar Pessoa',
+      label: 'Cadastrar Contato',
       action: this.modalOpen.bind(this),
       icon: 'po-icon-user',
     },
@@ -50,44 +68,19 @@ export class ContatoComponent implements OnInit {
     label: 'Cadastrar',
   };
 
-  actionsTable: Array<PoTableAction> = [
-    {
-      action: this.edit.bind(this),
-      icon: 'po-icon-user',
-      label: 'Adicionar contato'
-    }
-  ];
-
-  name: string;
-  datepicker: string;
-
-  constructor(
-    private personService: PessoaService,
-    private poNotification: PoNotificationService
-  ) {}
-
   ngOnInit() {
-    this.getPersons();
+    this.activatedRoute.params.subscribe((s) => {
+      this.id$ = s['id'];
+      this.getContacts(this.id$);
+    });
   }
 
-  isUndelivered(row, index: number) {
-    return row.status !== 'delivered';
-  }
-
-  modalOpen() {
-    this.poModal.open();
-  }
-
-  modalClose() {
-    this.poModal.close();
-    this.formShare.reset();
-  }
-
-  getPersons() {
-    this.personService.getPersons().subscribe(
+  getContacts(id) {
+    this.personService.getContacts(id).subscribe(
       (data) => {
         if (data) {
-          this.items = data['result'];
+          this.items = data;
+          this.itemsContatos = data['contatos'];
         }
       },
       (err) => {
@@ -98,27 +91,47 @@ export class ContatoComponent implements OnInit {
     );
   }
 
+  edit(value) {}
+
   create() {
     var body = {
-      name: this.name,
-      birthday: this.datepicker,
-      contacts: []
+      value: this.name,
+      contactType: Number(this.comboModel),
     };
 
-    this.personService.createPerson(body).subscribe(
+    this.personService.createContact(body, this.id$).subscribe(
       (data) => {
         if (data) {
-          this.poNotification.success("Pessoa cadastrada com sucesso!");
+          this.poNotification.success('Contato cadastrado com sucesso!');
+          this.getContacts(this.id$);
+          this.modalClose();
         }
       },
       (err) => {
-        this.poNotification.error("Erro ao cadastrar pessoa");
+        this.poNotification.error('Erro ao cadastrar contato');
       }
     );
   }
 
-  edit(value){
-  console.log("🚀 ~ value:", value)
+  modalClose() {
+    this.poModal.close();
+  }
 
+  modalOpen() {
+    this.poModal.open();
+  }
+
+  delete(value) {
+    this.personService.deleteContact(value.id).subscribe(
+      (data) => {
+        if (data) {
+          this.poNotification.success('Contato deletado com sucesso!');
+          this.getContacts(this.id$);
+        }
+      },
+      (err) => {
+        this.poNotification.error('Erro ao deletar contato');
+      }
+    );
   }
 }
